@@ -5,6 +5,9 @@
  * Autocomplete component.
  */
 
+// We treat textfield as a sort of "parent class"
+module_load_include('inc', 'webform', 'components/textfield');
+
 /**
  * Implements _webform_defaults_component().
  */
@@ -182,85 +185,35 @@ function _webform_render_autocomplete($component, $value = NULL, $filter = TRUE)
  * Implements _webform_display_component().
  */
 function _webform_display_autocomplete($component, $value, $format = 'html') {
-  return array(
-    '#title' => $component['name'],
-    '#weight' => $component['weight'],
-    '#theme' => 'webform_display_textfield',
-    '#theme_wrappers' => $format == 'html' ? array('webform_element') : array('webform_element_text'),
-    '#field_prefix' => $component['extra']['field_prefix'],
-    '#field_suffix' => $component['extra']['field_suffix'],
-    '#format' => $format,
-    '#value' => isset($value[0]) ? $value[0] : '',
-    '#translatable' => array('title', 'field_prefix', 'field_suffix'),
-  );
-}
-
-/**
- * Format the output of data for this component.
- */
-function theme_webform_display_autocomplete($variables) {
-  $element = $variables['element'];
-  $prefix = $element['#format'] == 'html' ? '' : $element['#field_prefix'];
-  $suffix = $element['#format'] == 'html' ? '' : $element['#field_suffix'];
-  $value = $element['#format'] == 'html' ? check_plain($element['#value']) : $element['#value'];
-  return $value !== '' ? ($prefix . $value . $suffix) : ' ';
+  return _webform_display_textfield($component, $value, $format);
 }
 
 /**
  * Implements _webform_analysis_component().
  */
 function _webform_analysis_autocomplete($component, $sids = array()) {
-  $query = db_select('webform_submitted_data', 'wsd', array('fetch' => PDO::FETCH_ASSOC))
-    ->fields('wsd', array('data'))
-    ->condition('nid', $component['nid'])
-    ->condition('cid', $component['cid']);
-
-  if (count($sids)) {
-    $query->condition('sid', $sids, 'IN');
-  }
-
-  $nonblanks = 0;
-  $submissions = 0;
-  $wordcount = 0;
-
-  $result = $query->execute();
-  foreach ($result as $data) {
-    if (drupal_strlen(trim($data['data'])) > 0) {
-      $nonblanks++;
-      $wordcount += str_word_count(trim($data['data']));
-    }
-    $submissions++;
-  }
-
-  $rows[0] = array(t('Left Blank'), ($submissions - $nonblanks));
-  $rows[1] = array(t('User entered value'), $nonblanks);
-  $rows[2] = array(t('Average submission length in words (ex blanks)'), ($nonblanks != 0 ? number_format($wordcount/$nonblanks, 2) : '0'));
-  return $rows;
+  return _webform_analysis_textfield($component, $sids);
 }
 
 /**
  * Implements _webform_table_component().
  */
 function _webform_table_autocomplete($component, $value) {
-  return check_plain(empty($value[0]) ? '' : $value[0]);
+  return _webform_table_textfield($component, $value);
 }
 
 /**
  * Implements _webform_csv_headers_component().
  */
 function _webform_csv_headers_autocomplete($component, $export_options) {
-  $header = array();
-  $header[0] = '';
-  $header[1] = '';
-  $header[2] = $component['name'];
-  return $header;
+  return _webform_csv_headers_textfield($component, $export_options);
 }
 
 /**
  * Implements _webform_csv_data_component().
  */
 function _webform_csv_data_autocomplete($component, $export_options, $value) {
-  return !isset($value[0]) ? '' : $value[0];
+  return _webform_csv_data_textfield($component, $export_options, $value);
 }
 
 /**
@@ -269,7 +222,7 @@ function _webform_csv_data_autocomplete($component, $export_options, $value) {
 function webform_autocomplete_js($node, $cid = 0, $str = '') {
   if ($str) {
     $component = $node->webform['components'][$cid];
-    $items = $results = array();
+    $results = array();
     $count = 0;
     if (!empty($component['extra']['items'])) {
       $items = explode("\n", $component['extra']['items']);
@@ -286,13 +239,14 @@ function webform_autocomplete_js($node, $cid = 0, $str = '') {
       if (!empty($component['extra']['autocomplete_existing']) && $count < 20) {
         $db = db_query("SELECT data 
           FROM {webform_submitted_data}
-          WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . (20 - count($results)),
+          WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . (20 - $count),
           array(':nid' => $node->nid, ':cid' => $cid, ':str' => '%' . db_like($str) . '%')
         );
         foreach ($db as $row) {
           $results[$row->data] = $row->data;
         }
       }
+      // Sort php and sql results together
       natcasesort($results);
     }
     drupal_json_output($results);
