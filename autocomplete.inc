@@ -237,7 +237,7 @@ function webform_autocomplete_js($node, $cid = 0, $str = '') {
       }
       // Only fire the query if we have fewer than 20 results already
       if (!empty($component['extra']['autocomplete_existing']) && $count < 20) {
-        $db = db_query("SELECT data 
+        $db = db_query("SELECT DISTINCT data 
           FROM {webform_submitted_data}
           WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . (20 - $count),
           array(':nid' => $node->nid, ':cid' => $cid, ':str' => '%' . db_like($str) . '%')
