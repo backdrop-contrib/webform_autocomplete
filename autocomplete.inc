@@ -49,7 +49,7 @@ function _webform_edit_autocomplete($component) {
     '#maxlength' => 1024,
     '#weight' => 0,
   );
-  $form['extra']['items'] = array(
+  $form['options']['items'] = array(
     '#type' => 'textarea',
     '#title' => t('Options'),
     '#default_value' => $component['extra']['items'],
@@ -59,6 +59,7 @@ function _webform_edit_autocomplete($component) {
     '#weight' => 0,
     '#required' => FALSE,
     '#wysiwyg' => FALSE,
+    '#parents' => array('extra', 'items'),
   );
   $form['display']['width'] = array(
     '#type' => 'textfield',
@@ -90,7 +91,7 @@ function _webform_edit_autocomplete($component) {
     '#weight' => 1.2,
     '#parents' => array('extra', 'field_suffix'),
   );
-  $form['display']['autocomplete_existing'] = array(
+  $form['options']['autocomplete_existing'] = array(
     '#type' => 'checkbox',
     '#title' => t('Autocomplete from existing submissions'),
     '#return_value' => 1,
@@ -112,7 +113,7 @@ function _webform_edit_autocomplete($component) {
     '#type' => 'checkbox',
     '#title' => t('Restrict to listed values'),
     '#return_value' => 1,
-    '#description' => t('Only allow options entered above to be chosen. Other input will be rejected.'),
+    '#description' => t('Only allow options entered here to be chosen. Other input will be rejected.'),
     '#weight' => 1,
     '#default_value' => $component['extra']['autocomplete_restrict'],
     '#parents' => array('extra', 'autocomplete_restrict'),
@@ -154,7 +155,7 @@ function _webform_render_autocomplete($component, $value = NULL, $filter = TRUE)
     '#theme_wrappers' => array('webform_element'),
     '#translatable' => array('title', 'description', 'field_prefix', 'field_suffix'),
   );
-  // Autocomplete
+  // Autocomplete callback
   if ($node && !empty($component['cid'])) {
     $element['#autocomplete_path'] = 'webform_autocomplete/js/' . $node->nid . '/' . $component['cid'];
   }
@@ -219,11 +220,12 @@ function _webform_csv_data_autocomplete($component, $export_options, $value) {
 /**
  * Autocomplete callback.
  */
-function webform_autocomplete_js($node, $cid = 0, $str = '') {
+function webform_autocomplete_js($node, $cid, $str = '') {
   if ($str) {
     $component = $node->webform['components'][$cid];
     $results = array();
     $count = 0;
+    // Search from prepulated options
     if (!empty($component['extra']['items'])) {
       $items = explode("\n", $component['extra']['items']);
       foreach ($items as $val) {
@@ -235,21 +237,61 @@ function webform_autocomplete_js($node, $cid = 0, $str = '') {
           }
         }
       }
-      // Only fire the query if we have fewer than 20 results already
-      if (!empty($component['extra']['autocomplete_existing']) && $count < 20) {
-        $db = db_query("SELECT DISTINCT data 
-          FROM {webform_submitted_data}
-          WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . (20 - $count),
-          array(':nid' => $node->nid, ':cid' => $cid, ':str' => '%' . db_like($str) . '%')
-        );
-        foreach ($db as $row) {
-          $results[$row->data] = $row->data;
-        }
-      }
-      // Sort php and sql results together
-      natcasesort($results);
     }
+    // Search from existing submissions
+    // Only fire the query if we have fewer than 20 results already
+    if (!empty($component['extra']['autocomplete_existing']) && $count < 20) {
+      $db = db_query("SELECT DISTINCT data 
+        FROM {webform_submitted_data}
+        WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . (20 - $count),
+        array(':nid' => $node->nid, ':cid' => $cid, ':str' => '%' . db_like($str) . '%')
+      );
+      foreach ($db as $row) {
+        $results[$row->data] = $row->data;
+      }
+    }
+    // Sort php and sql results together
+    natcasesort($results);
     drupal_json_output($results);
   }
   exit();
+}
+
+/**
+ * Implements _webform_form_builder_map_component().
+ */
+function _webform_form_builder_map_autocomplete() {
+  return array(
+    'form_builder_type' => 'autocomplete',
+    'properties' => array(
+      'size' => array(
+        'form_parents' => array('display', 'width'),
+        'storage_parents' => array('extra', 'width'),
+      ),
+      'maxlength' => array(
+        'form_parents' => array('display', 'maxlength'),
+        'storage_parents' => array('extra', 'maxlength'),
+      ),
+      'field_prefix' => array(
+        'form_parents' => array('display', 'field_prefix'),
+        'storage_parents' => array('extra', 'field_prefix'),
+      ),
+      'field_suffix' => array(
+        'form_parents' => array('display', 'field_suffix'),
+        'storage_parents' => array('extra', 'field_suffix'),
+      ),
+      'items' => array(
+        'form_parents' => array('options', 'items'),
+        'storage_parents' => array('extra', 'items'),
+      ),
+      'autocomplete_existing' => array(
+        'form_parents' => array('options', 'autocomplete_existing'),
+        'storage_parents' => array('extra', 'autocomplete_existing'),
+      ),
+      'autocomplete_restrict' => array(
+        'form_parents' => array('validation', 'autocomplete_restrict'),
+        'storage_parents' => array('extra', 'autocomplete_restrict'),
+      ),
+    ),
+  );
 }

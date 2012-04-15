@@ -74,3 +74,49 @@ function webform_autocomplete_validate_restricted($element, &$form_state) {
     form_error($element, t('Invalid choice for @field.', array('@field' => $element['#title'])));
   }
 }
+
+/**
+ * Implements hook_form_builder_types().
+ */
+function webform_autocomplete_form_builder_types() {
+  drupal_add_css(drupal_get_path('module', 'webform_autocomplete') . '/autocomplete.css');
+  $fields = array(
+    'autocomplete' => array(
+      'title' => t('Autocomplete'),
+      'weight' => -30,
+      'properties' => array(
+        'title',
+        'description',
+        'field_prefix',
+        'field_suffix',
+        'default_value',
+        'required',
+        'size',
+        'maxlength',
+        'disabled',
+        'items',
+        'autocomplete_existing',
+        'autocomplete_restrict',
+        'unique',
+      ),
+    ),
+  );
+  $fields['autocomplete']['default'] = _form_builder_webform_default('autocomplete');
+  $fields['autocomplete']['default']['#title'] = t('New autocomplete');
+
+  // Return the array of supported fields, with a key for the form type that
+  // these fields apply to.
+  return array(
+    'webform' => $fields,
+  );
+}
+
+/**
+ * Implements hook_form_builder_preview_alter().
+ */
+function webform_autocomplete_form_builder_preview_alter(&$element, $form_type, $form_id) {
+  if ($form_type == 'webform' && $element['#webform_component']['type'] == 'autocomplete') {
+    $element['#attributes']['class'][] = 'form-autocomplete';
+    $element['#autocomplete_path'] = '';
+  }
+}
