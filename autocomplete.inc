@@ -227,8 +227,8 @@ function webform_autocomplete_js($node, $cid, $str = '') {
     $count = 0;
     // Search from prepulated options
     if (!empty($component['extra']['items'])) {
-      $items = explode("\n", $component['extra']['items']);
-      foreach ($items as $val) {
+      $options = preg_split('/\r\n|\r|\n/', $element['#webform_component']['extra']['items']);
+      foreach ($options as $val) {
         if (stripos($val, $str) !== FALSE) {
           $results[$val] = $val;
           // Limit to 20 results
