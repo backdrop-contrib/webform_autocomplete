@@ -236,7 +236,7 @@ function _webform_csv_data_autocomplete($component, $export_options, $value) {
  * Autocomplete callback.
  */
 function webform_autocomplete_js($node, $cid, $str = '') {
-  if ($str) {
+  if ($str !== '') {
     $component = $node->webform['components'][$cid];
     $result_count = (int) $component['extra']['result_count'];
     $results = array();
