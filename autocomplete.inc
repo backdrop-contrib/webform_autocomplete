@@ -12,29 +12,15 @@ module_load_include('inc', 'webform', 'components/textfield');
  * Implements _webform_defaults_component().
  */
 function _webform_defaults_autocomplete() {
-  return array(
-    'name' => '',
-    'form_key' => NULL,
-    'pid' => 0,
-    'weight' => 0,
-    'value' => '',
-    'mandatory' => 0,
-    'extra' => array(
-      'items' => '',
-      'width' => '',
-      'field_prefix' => '',
-      'field_suffix' => '',
-      'unique' => 0,
-      'autocomplete_existing' => 0,
-      'match_rule' => 1,
-      'autocomplete_restrict' => 0,
-      'result_count' => 20,
-      'title_display' => 0,
-      'description' => '',
-      'attributes' => array(),
-      'private' => FALSE,
-    ),
+  $defaults = _webform_defaults_textfield();
+  $defaults['extra'] += array(
+    'items' => '',
+    'autocomplete_existing' => 0,
+    'match_rule' => 1,
+    'autocomplete_restrict' => 0,
+    'result_count' => 20,
   );
+  return $defaults;
 }
 
 /**
@@ -115,7 +101,7 @@ function _webform_edit_autocomplete($component) {
   );
   $form['options']['match_rule'] = array(
     '#type' => 'select',
-    '#title' => 'Match Rule',
+    '#title' => ts('Match Rule'),
     '#options' => array(
       0 => t('starts with'),
       1 => t('contains'),
@@ -285,7 +271,7 @@ function webform_autocomplete_js($node, $cid, $str = '') {
       }
     }
     // Search from existing submissions
-    // Only fire the query if we have fewer than 20 results already
+    // Only fire the query if we have fewer than $result_count results already
     if (!empty($component['extra']['autocomplete_existing']) && $count < $result_count) {
       $str_like = db_like($str);
       if ($match_rule == 1 || $match_rule == 2) {
