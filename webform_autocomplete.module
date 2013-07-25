@@ -102,7 +102,9 @@ function webform_autocomplete_form_builder_types() {
       ),
     ),
   );
-  $fields['autocomplete']['default'] = _form_builder_webform_default('autocomplete');
+  if (function_exists('_form_builder_webform_default')) {
+    $fields['autocomplete']['default'] = _form_builder_webform_default('autocomplete');
+  }
   $fields['autocomplete']['default']['#title'] = t('New autocomplete');
 
   // Return the array of supported fields, with a key for the form type that
