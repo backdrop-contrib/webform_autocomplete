@@ -14,11 +14,11 @@ module_load_include('inc', 'webform', 'components/textfield');
 function _webform_defaults_autocomplete() {
   $defaults = _webform_defaults_textfield();
   $defaults['extra'] += array(
-    'items' => '',
+    'autocomplete_items' => '',
     'autocomplete_existing' => 0,
-    'match_rule' => 1,
+    'autocomplete_match_rule' => 1,
     'autocomplete_restrict' => 0,
-    'result_count' => 20,
+    'autocomplete_result_count' => 20,
   );
   return $defaults;
 }
@@ -37,28 +37,28 @@ function _webform_edit_autocomplete($component) {
     '#maxlength' => 1024,
     '#weight' => 0,
   );
-  $form['options']['items'] = array(
+  $form['options']['autocomplete_items'] = array(
     '#type' => 'textarea',
     '#title' => t('Options'),
-    '#default_value' => $component['extra']['items'],
+    '#default_value' => $component['extra']['autocomplete_items'],
     '#description' => t('One value per line. Unlike select elements, this field does not use key|value pairs - enter values only.'),
     '#cols' => 60,
     '#rows' => 5,
     '#weight' => 0,
     '#required' => FALSE,
     '#wysiwyg' => FALSE,
-    '#parents' => array('extra', 'items'),
+    '#parents' => array('extra', 'autocomplete_items'),
   );
-  $form['display']['result_count'] = array(
+  $form['display']['autocomplete_result_count'] = array(
     '#type' => 'textfield',
     '#title' => t('Result Count'),
-    '#default_value' => $component['extra']['result_count'],
+    '#default_value' => $component['extra']['autocomplete_result_count'],
     '#description' => t('Maximum number of autocomplete results to display.'),
     '#size' => 5,
     '#weight' => -1,
     '#maxlength' => 2,
     '#required' => TRUE,
-    '#parents' => array('extra', 'result_count'),
+    '#parents' => array('extra', 'autocomplete_result_count'),
   );
   $form['display']['width'] = array(
     '#type' => 'textfield',
@@ -99,16 +99,16 @@ function _webform_edit_autocomplete($component) {
     '#default_value' => $component['extra']['autocomplete_existing'],
     '#parents' => array('extra', 'autocomplete_existing'),
   );
-  $form['options']['match_rule'] = array(
+  $form['options']['autocomplete_match_rule'] = array(
     '#type' => 'select',
-    '#title' => ts('Match Rule'),
+    '#title' => t('Match Rule'),
     '#options' => array(
       0 => t('starts with'),
       1 => t('contains'),
       2 => t('ends with'),
     ),
-    '#parents' => array('extra', 'match_rule'),
-    '#default_value' => $component['extra']['match_rule'],
+    '#parents' => array('extra', 'autocomplete_match_rule'),
+    '#default_value' => $component['extra']['autocomplete_match_rule'],
   );
   $form['validation']['unique'] = array(
     '#type' => 'checkbox',
@@ -137,14 +137,14 @@ function _webform_edit_autocomplete($component) {
  */
 function _webform_autocomplete_admin_validate($form, &$form_state) {
   $extra = $form_state['values']['extra'];
-  if ($extra['autocomplete_restrict'] && !$extra['items']) {
+  if ($extra['autocomplete_restrict'] && !$extra['autocomplete_items']) {
     form_error($form['validation']['autocomplete_restrict'], t('You have chosen to restrict submissions to listed options, but have not entered any options.'));
   }
   if ($extra['autocomplete_restrict'] && $extra['autocomplete_existing']) {
     form_error($form['validation']['autocomplete_restrict'], t('You cannot choose both "Restrict to listed values" and "Autocomplete from existing submissions."'));
   }
-  if (!is_numeric($extra['result_count']) || $extra['result_count'] < 1) {
-    form_error($form['display']['result_count'], t('You must choose to display at least one result'));
+  if (!is_numeric($extra['autocomplete_result_count']) || $extra['autocomplete_result_count'] < 1) {
+    form_error($form['display']['autocomplete_result_count'], t('You must choose to display at least one result'));
   }
 }
 
@@ -236,13 +236,13 @@ function _webform_csv_data_autocomplete($component, $export_options, $value) {
 function webform_autocomplete_js($node, $cid, $str = '') {
   if ($str !== '') {
     $component = $node->webform['components'][$cid];
-    $result_count = (int) $component['extra']['result_count'];
-    $match_rule = $component['extra']['match_rule'];
+    $result_count = (int) $component['extra']['autocomplete_result_count'];
+    $match_rule = $component['extra']['autocomplete_match_rule'];
     $results = array();
     $count = 0;
     // Search from prepulated options
-    if (!empty($component['extra']['items'])) {
-      $options = preg_split('/\r\n|\r|\n/', $component['extra']['items']);
+    if (!empty($component['extra']['autocomplete_items'])) {
+      $options = preg_split('/\r\n|\r|\n/', $component['extra']['autocomplete_items']);
       foreach ($options as $val) {
         $is_match = FALSE;
         if ($match_rule == 0) {
@@ -320,17 +320,17 @@ function _webform_form_builder_map_autocomplete() {
         'form_parents' => array('display', 'field_suffix'),
         'storage_parents' => array('extra', 'field_suffix'),
       ),
-      'items' => array(
-        'form_parents' => array('options', 'items'),
-        'storage_parents' => array('extra', 'items'),
+      'autocomplete_items' => array(
+        'form_parents' => array('options', 'autocomplete_items'),
+        'storage_parents' => array('extra', 'autocomplete_items'),
       ),
       'autocomplete_existing' => array(
         'form_parents' => array('options', 'autocomplete_existing'),
         'storage_parents' => array('extra', 'autocomplete_existing'),
       ),
-      'match_rule' => array(
-        'form_parents' => array('options', 'match_rule'),
-        'storage_parents' => array('extra', 'match_rule'),
+      'autocomplete_match_rule' => array(
+        'form_parents' => array('options', 'autocomplete_match_rule'),
+        'storage_parents' => array('extra', 'autocomplete_match_rule'),
       ),
       'autocomplete_restrict' => array(
         'form_parents' => array('validation', 'autocomplete_restrict'),

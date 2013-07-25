@@ -69,7 +69,7 @@ function webform_autocomplete_access($node, $cid) {
  * Validation callback for webform component.
  */
 function webform_autocomplete_validate_restricted($element, &$form_state) {
-  $options = preg_split('/\r\n|\r|\n/', $element['#webform_component']['extra']['items']);
+  $options = preg_split('/\r\n|\r|\n/', $element['#webform_component']['extra']['autocomplete_items']);
   if (!in_array($element['#value'], $options)) {
     form_error($element, t('Invalid choice for @field.', array('@field' => $element['#title'])));
   }
@@ -94,9 +94,9 @@ function webform_autocomplete_form_builder_types() {
         'size',
         'maxlength',
         'disabled',
-        'items',
+        'autocomplete_items',
         'autocomplete_existing',
-        'match_rule',
+        'autocomplete_match_rule',
         'autocomplete_restrict',
         'unique',
       ),
