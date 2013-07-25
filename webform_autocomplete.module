@@ -96,6 +96,7 @@ function webform_autocomplete_form_builder_types() {
         'disabled',
         'items',
         'autocomplete_existing',
+        'match_rule',
         'autocomplete_restrict',
         'unique',
       ),

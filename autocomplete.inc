@@ -26,6 +26,7 @@ function _webform_defaults_autocomplete() {
       'field_suffix' => '',
       'unique' => 0,
       'autocomplete_existing' => 0,
+      'match_rule' => 1,
       'autocomplete_restrict' => 0,
       'result_count' => 20,
       'title_display' => 0,
@@ -111,6 +112,17 @@ function _webform_edit_autocomplete($component) {
     '#weight' => 1,
     '#default_value' => $component['extra']['autocomplete_existing'],
     '#parents' => array('extra', 'autocomplete_existing'),
+  );
+  $form['options']['match_rule'] = array(
+    '#type' => 'select',
+    '#title' => 'Match Rule',
+    '#options' => array(
+      0 => t('starts with'),
+      1 => t('contains'),
+      2 => t('ends with'),
+    ),
+    '#parents' => array('extra', 'match_rule'),
+    '#default_value' => $component['extra']['match_rule'],
   );
   $form['validation']['unique'] = array(
     '#type' => 'checkbox',
@@ -239,13 +251,31 @@ function webform_autocomplete_js($node, $cid, $str = '') {
   if ($str !== '') {
     $component = $node->webform['components'][$cid];
     $result_count = (int) $component['extra']['result_count'];
+    $match_rule = $component['extra']['match_rule'];
     $results = array();
     $count = 0;
     // Search from prepulated options
     if (!empty($component['extra']['items'])) {
       $options = preg_split('/\r\n|\r|\n/', $component['extra']['items']);
       foreach ($options as $val) {
-        if (stripos($val, $str) !== FALSE) {
+        $is_match = FALSE;
+        if ($match_rule == 0) {
+          if (strpos($val, $str, 0) === 0) {
+            $is_match = TRUE;
+          }
+        }
+        elseif ($match_rule == 1) {
+          if (stripos($val, $str) !== FALSE) {
+            $is_match = TRUE;
+          }
+        }
+        else {
+          if (strpos($val, $str) + strlen($str) == strlen(trim($val))) {
+            $is_match = TRUE;
+          }
+        }
+        
+        if ($is_match) {
           $results[$val] = $val;
           // Limit to 20 results
           if (++$count >= $result_count) {
@@ -257,10 +287,18 @@ function webform_autocomplete_js($node, $cid, $str = '') {
     // Search from existing submissions
     // Only fire the query if we have fewer than 20 results already
     if (!empty($component['extra']['autocomplete_existing']) && $count < $result_count) {
+      $str_like = db_like($str);
+      if ($match_rule == 1 || $match_rule == 2) {
+        $str_like = '%' . $str_like;
+      }
+      if ($match_rule == 0 || $match_rule == 1) {
+        $str_like = $str_like . '%';
+      }
+      
       $db = db_query("SELECT DISTINCT data
         FROM {webform_submitted_data}
         WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . ($result_count - $count),
-        array(':nid' => $node->nid, ':cid' => $cid, ':str' => '%' . db_like($str) . '%')
+        array(':nid' => $node->nid, ':cid' => $cid, ':str' => $str_like)
       );
       foreach ($db as $row) {
         $results[$row->data] = $row->data;
@@ -303,6 +341,10 @@ function _webform_form_builder_map_autocomplete() {
       'autocomplete_existing' => array(
         'form_parents' => array('options', 'autocomplete_existing'),
         'storage_parents' => array('extra', 'autocomplete_existing'),
+      ),
+      'match_rule' => array(
+        'form_parents' => array('options', 'match_rule'),
+        'storage_parents' => array('extra', 'match_rule'),
       ),
       'autocomplete_restrict' => array(
         'form_parents' => array('validation', 'autocomplete_restrict'),
