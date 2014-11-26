@@ -4,4 +4,4 @@ description = Add an autocomplete type element to Webforms.
 core = 7.x
 package = Webform
 
-dependencies[] = webform
+dependencies[] = webform (3.x)
