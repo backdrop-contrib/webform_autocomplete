@@ -70,6 +70,14 @@ function _webform_edit_autocomplete($component) {
     '#weight' => 0,
     '#parents' => array('extra', 'width'),
   );
+  $form['display']['placeholder'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Placeholder'),
+    '#default_value' => $component['extra']['placeholder'],
+    '#description' => t('The placeholder will be shown in the field until the user starts entering a value.'),
+    '#weight' => 1,
+    '#parents' => array('extra', 'placeholder'),
+  );
   $form['display']['field_prefix'] = array(
     '#type' => 'textfield',
     '#title' => t('Label placed to the left of the textfield'),
@@ -171,6 +179,10 @@ function _webform_render_autocomplete($component, $value = NULL, $filter = TRUE)
   // Autocomplete callback
   if ($node && !empty($component['cid'])) {
     $element['#autocomplete_path'] = 'webform_autocomplete/js/' . $node->nid . '/' . $component['cid'];
+  }
+  
+  if ($component['extra']['placeholder']) {
+    $element['#attributes']['placeholder'] = $component['extra']['placeholder'];
   }
 
   // Enforce uniqueness.
