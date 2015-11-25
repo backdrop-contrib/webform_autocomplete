@@ -306,7 +306,6 @@ function webform_autocomplete_js($node, $cid, $str = '') {
     natcasesort($results);
     drupal_json_output($results);
   }
-  exit();
 }
 
 /**
