@@ -6,6 +6,10 @@
  * @author Coleman Watts
  */
 
+define('WEBFORM_AUTOCOMPLETE_MATCH_BEGIN', 0);
+define('WEBFORM_AUTOCOMPLETE_MATCH_CONTAINS', 1);
+define('WEBFORM_AUTOCOMPLETE_MATCH_END', 2);
+
 /**
  * Implements hook_menu().
  *
