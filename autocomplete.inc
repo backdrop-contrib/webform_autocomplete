@@ -304,6 +304,7 @@ function webform_autocomplete_js($node, $cid, $str = '') {
     }
     // Sort php and sql results together
     natcasesort($results);
+    drupal_alter('webform_autocomplete_options', $results, $node, $cid, $str);
     drupal_json_output($results);
   }
 }
