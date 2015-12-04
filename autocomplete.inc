@@ -116,7 +116,7 @@ function _webform_edit_autocomplete($component) {
 
     $form['options']['autocomplete_taxonomy'] = array(
       '#type' => 'select',
-      '#title' => t('Autocomplete from existing texonomy terms'),
+      '#title' => t('Autocomplete from existing taxonomy terms'),
       '#options' => array(0 => t('Disabled')) + $options,
       '#description' => t('Autocomplete from term names entered in this taxonomy vocabulary. If options are entered above, autocomplete will select from both.'),
       '#weight' => 1,
