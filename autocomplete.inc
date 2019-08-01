@@ -196,6 +196,11 @@ function _webform_render_autocomplete($component, $value = NULL, $filter = TRUE)
     '#theme_wrappers' => array('webform_element'),
     '#translatable' => array('title', 'description', 'field_prefix', 'field_suffix'),
   );
+
+  if ($component['required']) {
+    $element['#attributes']['required'] = 'required';
+  }
+  
   // Autocomplete callback
   if ($node && !empty($component['cid'])) {
     $element['#autocomplete_path'] = 'webform_autocomplete/js/' . $node->nid . '/' . $component['cid'];
@@ -278,7 +283,7 @@ function webform_autocomplete_js($node, $cid, $str = '') {
       foreach ($options as $val) {
         $is_match = FALSE;
         if ($match_rule == WEBFORM_AUTOCOMPLETE_MATCH_BEGIN) {
-          if (strpos($val, $str, 0) === 0) {
+          if (stripos($val, $str, 0) === 0) {
             $is_match = TRUE;
           }
         }
