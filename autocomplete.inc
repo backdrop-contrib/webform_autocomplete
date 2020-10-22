@@ -1,12 +1,13 @@
 <?php
-
 /**
  * @file
  * Autocomplete component.
  */
 
+
 // We treat textfield as a sort of "parent class"
 module_load_include('inc', 'webform', 'components/textfield');
+
 
 /**
  * Implements _webform_defaults_component().
@@ -23,6 +24,7 @@ function _webform_defaults_autocomplete() {
   );
   return $defaults;
 }
+
 
 /**
  * Implements _webform_edit_component().
@@ -157,6 +159,7 @@ function _webform_edit_autocomplete($component) {
   return $form;
 }
 
+
 /**
  * Validation callback for component edit form.
  */
@@ -175,6 +178,7 @@ function _webform_autocomplete_admin_validate($form, &$form_state) {
     form_error($form['display']['autocomplete_result_count'], t('You must choose to display at least one result'));
   }
 }
+
 
 /**
  * Implements _webform_render_component().
@@ -200,12 +204,12 @@ function _webform_render_autocomplete($component, $value = NULL, $filter = TRUE)
   if ($component['required']) {
     $element['#attributes']['required'] = 'required';
   }
-  
+
   // Autocomplete callback
   if ($node && !empty($component['cid'])) {
     $element['#autocomplete_path'] = 'webform_autocomplete/js/' . $node->nid . '/' . $component['cid'];
   }
-  
+
   if ($component['extra']['placeholder']) {
     $element['#attributes']['placeholder'] = $component['extra']['placeholder'];
   }
@@ -232,12 +236,14 @@ function _webform_render_autocomplete($component, $value = NULL, $filter = TRUE)
   return $element;
 }
 
+
 /**
  * Implements _webform_display_component().
  */
 function _webform_display_autocomplete($component, $value, $format = 'html') {
   return _webform_display_textfield($component, $value, $format);
 }
+
 
 /**
  * Implements _webform_analysis_component().
@@ -246,12 +252,14 @@ function _webform_analysis_autocomplete($component, $sids = array()) {
   return _webform_analysis_textfield($component, $sids);
 }
 
+
 /**
  * Implements _webform_table_component().
  */
 function _webform_table_autocomplete($component, $value) {
   return _webform_table_textfield($component, $value);
 }
+
 
 /**
  * Implements _webform_csv_headers_component().
@@ -260,12 +268,14 @@ function _webform_csv_headers_autocomplete($component, $export_options) {
   return _webform_csv_headers_textfield($component, $export_options);
 }
 
+
 /**
  * Implements _webform_csv_data_component().
  */
 function _webform_csv_data_autocomplete($component, $export_options, $value) {
   return _webform_csv_data_textfield($component, $export_options, $value);
 }
+
 
 /**
  * Autocomplete callback.
@@ -297,7 +307,7 @@ function webform_autocomplete_js($node, $cid, $str = '') {
             $is_match = TRUE;
           }
         }
-        
+
         if ($is_match) {
           $results[$val] = $val;
           // Limit to 20 results
@@ -317,7 +327,7 @@ function webform_autocomplete_js($node, $cid, $str = '') {
       if ($match_rule == WEBFORM_AUTOCOMPLETE_MATCH_BEGIN || $match_rule == WEBFORM_AUTOCOMPLETE_MATCH_CONTAINS) {
         $str_like = $str_like . '%';
       }
-      
+
       $db = db_query("SELECT DISTINCT data
         FROM {webform_submitted_data}
         WHERE nid = :nid AND cid = :cid AND data LIKE :str LIMIT " . ($result_count - $count),
@@ -360,10 +370,11 @@ function webform_autocomplete_js($node, $cid, $str = '') {
 
     // Sort all results together
     natcasesort($results);
-    drupal_alter('webform_autocomplete_options', $results, $node, $cid, $str);
-    drupal_json_output($results);
+    backdrop_alter('webform_autocomplete_options', $results, $node, $cid, $str);
+    backdrop_json_output($results);
   }
 }
+
 
 /**
  * Implements _webform_form_builder_map_component().

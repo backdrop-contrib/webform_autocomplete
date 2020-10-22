@@ -1,7 +1,7 @@
-; $Id: $
 name = Webform Autocomplete
 description = Add an autocomplete type element to Webforms.
-core = 7.x
+backdrop = 1.x
+type = module
 package = Webform
 
-dependencies[] = webform (4.x)
+dependencies[] = webform
