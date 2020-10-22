@@ -26,10 +26,13 @@ Installation
 
 - Install this module using [the official Backdrop CMS instructions](  https://backdropcms.org/guide/modules).
 
-- Visit the configuration page under Administration > Configuration > Category >
-  Foo (admin/config/category/foo) and enter the required information.
+- There is no global configuration page for the module.
 
-- Any additional steps.
+Usage
+------------
+
+- When you create a new Webform, there will be a new Autocomplete component choice.
+
 
 Documentation
 -------------

@@ -35,7 +35,7 @@ function _webform_edit_autocomplete($component) {
     '#type' => 'textfield',
     '#title' => t('Default value'),
     '#default_value' => $component['value'],
-    '#description' => t('The default value of the field.') . theme('webform_token_help'),
+    '#description' => t('The default value of the field.') . ' ' . theme('webform_token_help'),
     '#size' => 60,
     '#maxlength' => 1024,
     '#weight' => 0,
