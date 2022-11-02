@@ -33,12 +33,6 @@ Usage
 
 - When you create a new Webform, there will be a new Autocomplete component choice.
 
-
-Documentation
--------------
-
-Additional documentation is located in [the Wiki](https://github.com/backdrop-contrib/webform_autocomplete/wiki/Documentation).
-
 Issues
 ------
 
