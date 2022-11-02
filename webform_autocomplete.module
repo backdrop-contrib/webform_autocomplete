@@ -18,13 +18,12 @@ define('WEBFORM_AUTOCOMPLETE_MATCH_END', 2);
 function webform_autocomplete_menu() {
   $items = array();
   $items['webform_autocomplete/js/%node/%'] = array(
-    'title' => 'Webform Autocomplete',
     'page callback' => 'webform_autocomplete_js',
+    'page arguments' => array(2, 3),
     'access callback' => 'webform_autocomplete_access',
     'access arguments' => array(2, 3),
-    'page arguments' => array(2, 3),
-    'type' => MENU_CALLBACK,
     'file' => 'autocomplete.inc',
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
