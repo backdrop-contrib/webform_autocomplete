@@ -63,8 +63,7 @@ function webform_autocomplete_access($node, $cid) {
   if (!empty($node->webform['components'][$cid]['private'])) {
     return FALSE;
   }
-  // TODO This variable was probably removed in Backdrop without replacement.
-  if (variable_get('webform_submission_access_control', 1)) {
+  if (config_get('webform.settings', 'webform_submission_access_control')) {
     $allowed_roles = array();
     foreach ($node->webform['roles'] as $rid) {
       $allowed_roles[$rid] = isset($user->roles[$rid]) ? TRUE : FALSE;
